@@ -106,7 +106,9 @@ sub rotate_logfile
 # finally, open the log file
 
   open(STDOUT, ">>", $file2) || croak "cannot open $file2";
+  seek(STDOUT, 0, 2);
   open(STDERR, ">>", $file2) || croak "cannot open $file2";
+  seek(STDERR, 0, 2);
 
   return 0;
 }
@@ -115,7 +117,9 @@ sub check_logfile_rotation
 {
   if (!$log_initialized) {
     open(STDOUT, ">>", $logfile) || croak "cannot open $logfile";
+    seek( STDOUT, 0, 2);
     open(STDERR, ">>", $logfile) || croak "cannot open $logfile";
+    seek( STDERR, 0, 2);
     $log_initialized = 1;
   }
   if (defined($log_maxsize) && tell(STDOUT) > $log_maxsize) {
