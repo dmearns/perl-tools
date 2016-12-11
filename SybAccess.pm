@@ -9,7 +9,7 @@ require Exporter;
 @ISA = qw( Exporter );
 @EXPORT = qw( run_sql );
 
-$VERSION = '1.0';
+$VERSION = '1.00';
 
 =head1 NAME
 
