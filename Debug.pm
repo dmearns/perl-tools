@@ -6,7 +6,9 @@ use strict;
 use warnings;
 
 use base qw(Exporter);
-our @EXPORT_OK = qw(report_debug debug set_debug_level get_time get_time_str time_diff rotate_logfile check_logfile_rotation);
+our @EXPORT_OK = qw(report_debug debug set_debug_level get_time get_time_str time_diff
+  rotate_logfile check_logfile_rotation set_logfile set_log_maxsize set_log_interations);
+
 our $VERSION = '1.01';
 our $logfile;
 our $log_iterations = 10;
@@ -21,6 +23,8 @@ unless ($@) {
   $hires = 1;
 }
 
+# return current time
+################################################################################
 sub get_time
 {
   if ($hires) {
@@ -32,6 +36,8 @@ sub get_time
   }
 }
 
+# return current time as formatted string
+################################################################################
 sub get_time_str
 {
   my ($arg) = @_;
@@ -46,6 +52,8 @@ sub get_time_str
   return $now
 }
 
+# return string showing difference between 2 times
+################################################################################
 sub time_diff
 {
   my ($t1, $t2) = @_;
@@ -58,7 +66,7 @@ sub time_diff
 }
 
 # Rotate logfiles
-#-------------------------------------------------------------------------------
+################################################################################
 sub rotate_logfile
 {
   my ($i, $file1, $file2);
@@ -106,16 +114,22 @@ sub rotate_logfile
 # finally, open the log file
 
   open(STDOUT, ">>", $file2) || croak "cannot open $file2";
+  seek(STDOUT, 0, 2);
   open(STDERR, ">>", $file2) || croak "cannot open $file2";
+  seek(STDERR, 0, 2);
 
   return 0;
 }
 
+# See if logfile needs rotation, and do it
+################################################################################
 sub check_logfile_rotation
 {
   if (!$log_initialized) {
     open(STDOUT, ">>", $logfile) || croak "cannot open $logfile";
+    seek( STDOUT, 0, 2);
     open(STDERR, ">>", $logfile) || croak "cannot open $logfile";
+    seek( STDERR, 0, 2);
     $log_initialized = 1;
   }
   if (defined($log_maxsize) && tell(STDOUT) > $log_maxsize) {
@@ -127,6 +141,8 @@ sub check_logfile_rotation
   return 0;
 }
 
+# print a debug message
+################################################################################
 sub report_debug
 {
   my ($level, $message) = @_;
@@ -140,17 +156,55 @@ sub report_debug
   return 0;
 }
 
+# alias for report_debug
+################################################################################
 sub debug
 {
   return report_debug(@_);
 }
 
+# set the debug level, returning previous value
+################################################################################
 sub set_debug_level
 {
   my ($level) = @_;
 
+  my $old_debug = $debug;
   $debug = $level;
-  return 0;
+  return $old_debug;
+}
+
+# set the logfile name, returning previous value
+################################################################################
+sub set_logfile
+{
+  my ($newlog) = @_;
+
+  my $oldlog = $logfile;
+  $logfile = $newlog if defined($newlog);
+  return $oldlog;
+}
+
+# set the logfile max size, returning previous value
+################################################################################
+sub set_log_maxsize
+{
+  my ($newmax) = @_;
+
+  my $oldmax = $log_maxsize;
+  $log_maxsize = $newmax if defined($newmax);
+  return $oldmax;
+}
+
+# set the logfile iterations, returning previous value
+################################################################################
+sub set_log_interations
+{
+  my ($newiter) = @_;
+
+  my $olditer = $log_iterations;
+  $log_iterations = $newiter if defined($newiter);
+  return $olditer;
 }
 
 1;
