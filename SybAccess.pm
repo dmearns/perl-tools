@@ -6,8 +6,8 @@ use strict;
 use vars qw(@EXPORT @ISA $VERSION);
 require Exporter;
 
-@ISA = qw( Exporter );
-@EXPORT = qw( run_sql );
+@ISA = qw(Exporter);
+@EXPORT = qw(run_sql);
 
 $VERSION = '1.00';
 
@@ -18,24 +18,24 @@ dmearns::SybAccess - Wrapper for Sybase::DBlib.
 =head1 SYNOPSIS
 
   use dmearns::SybAccess;
-  dbh = new dmearns::SybAccess( 'Database'=>'dmearns' );
-  @rows = $dbh->sql( "select ...", undef, 1 );
- 
-  For legacy scripts, first three args can be treated the same as 
+  dbh = dmearns::SybAccess->new(Database => 'dmearns');
+  @rows = $dbh->sql("select ...", undef, 1);
+
+  For legacy scripts, first three args can be treated the same as
   Sybase::DBlib, subsequent args must be keyword/value
 
-  $dbh = new dmearns::SybAccess( 'groKKer', 'grokKer', 'SYBASE' );
+  $dbh = dmearns::SybAccess->new('groKKer', 'grokKer', 'SYBASE');
 
   The two methods can be combined.
-  
-  $dbh = new dmearns::SybAccess( 'groKKer', 'grokKer', 'SYBASE',
-    'message_handler' => 'html_message_handler' 
-    'deadlock_retry_count' => 10 );
+
+  $dbh = dmearns::SybAccess->new('groKKer', 'grokKer', 'SYBASE',
+    message_handler => 'html_message_handler'
+    deadlock_retry_count => 10);
 
 =head1 DESCRIPTION
 
-Module to wrap Sybase::DBlib, providing deadlock handling, message 
-handling, database username/password discovery, in addition to easy 
+Module to wrap Sybase::DBlib, providing deadlock handling, message
+handling, database username/password discovery, in addition to easy
 transition for legacy code.
 
 =cut
@@ -47,23 +47,23 @@ my $deadlock;
 sub grokdef_lookup
 {
   my $self = shift;
-  my $grok = $ENV{'GROK'} || "/usr/grok";
-  my ( $section, %user, %pass );
+  my $grok = $ENV{GROK} || "/usr/grok";
+  my ($section, %user, %pass);
 
-  local( *FILE );
-  open( FILE, "<$grok/def/grokdef" ) || return undef;
+  local(*FILE);
+  open(FILE, "<$grok/def/grokdef") || return undef;
   while (<FILE>) {
     next if /^#/;
     $section = $1 if /\[(.*LOGIN)\]/;
-    $user{ $section } = $1 if /^\s*USERNAME\s+(.*)/;
-    $pass{ $section } = $1 if /^\s*PASSWORD\s+(.*)/;
+    $user{$section} = $1 if /^\s*USERNAME\s+(.*)/;
+    $pass{$section} = $1 if /^\s*PASSWORD\s+(.*)/;
   }
-  close( FILE );
-  if ( $self->{'Database'} eq 'grok_db' ) {
-    return ($user{ 'LOGIN' }, $pass{ 'LOGIN' } );
+  close(FILE);
+  if ($self->{Database} eq 'grok_db') {
+    return ($user{LOGIN}, $pass{LOGIN});
   }
-  if ( $self->{'Database'} eq 'grokras_db' ) {
-    return ($user{ 'RASLOGIN' }, $pass{ 'RASLOGIN' } );
+  if ($self->{Database} eq 'grokras_db') {
+    return ($user{RASLOGIN}, $pass{RASLOGIN});
   }
   return undef;
 }
@@ -76,26 +76,26 @@ sub loginByMethod
   my ($self, $method) = @_;
   my ($user, $pw);
 
-  if ( $method eq "usegrokdef" ) {
+  if ($method eq "usegrokdef") {
     ($user, $pw) = $self->grokdef_lookup();
-  } elsif ( $method eq "useEnv" ) {
-    if ( $self->{'Database'} eq "grok_db" ) {
-      ($user, $pw) = ( $ENV{'GROKLOGIN'}, $ENV{'GROKPASSWORD'} );
+  } elsif ($method eq "useEnv") {
+    if ($self->{Database} eq "grok_db") {
+      ($user, $pw) = ($ENV{GROKLOGIN}, $ENV{GROKPASSWORD});
     }
-    if ( $self->{'Database'} eq "grokras_db" ) {
-      ($user, $pw) = ( $ENV{'RASLOGIN'}, $ENV{'RASPASSWORD'} );
+    if ($self->{Database} eq "grokras_db") {
+      ($user, $pw) = ($ENV{RASLOGIN}, $ENV{RASPASSWORD});
     }
-  } elsif ( $method eq "useDefault" ) {
-    if ( $self->{'Database'} eq "grok_db" ) {
-      ($user, $pw) = ( "groKKer", "groKKer" );
+  } elsif ($method eq "useDefault") {
+    if ($self->{Database} eq "grok_db") {
+      ($user, $pw) = ("groKKer", "groKKer");
     }
-    if ( $self->{'Database'} eq "grokras_db" ) {
-      ($user, $pw) = ( "ras", "groKKer" );
+    if ($self->{Database} eq "grokras_db") {
+      ($user, $pw) = ("ras", "groKKer");
     }
   } else {
     return undef;
   }
-  return ($user, $pw );
+  return ($user, $pw);
 }
 
 =head1 METHODS
@@ -104,7 +104,7 @@ sub loginByMethod
 
 =item new
 
-Object constructor.  Optional arguments may be passed as 
+Object constructor.  Optional arguments may be passed as
 keyword => value pairs.  Valid keywords are:
 
     Server Username Password Database discovery message_handler
@@ -118,41 +118,41 @@ so that it then works just like the Sybase::DBlib new.
 
 sub new($)
 {
-  my ( $class, @args ) = @_;
-  my $self = { 
-    'Server' => $ENV{'DSQUERY'} || 'SYBASE', 
-    'Username' => 'groKKer', 
-    'Password' => 'groKKer', 
-    'Database' => 'grok_db', 
-    'message_handler' => 'std_message_handler',
-    'deadlock_retry_count' => 5,
-    'deadlock_flag' => 0,
+  my ($class, @args) = @_;
+  my $self = {
+    Server => $ENV{DSQUERY} || 'SYBASE',
+    Username => 'groKKer',
+    Password => 'groKKer',
+    Database => 'grok_db',
+    message_handler => 'std_message_handler',
+    deadlock_retry_count => 5,
+    deadlock_flag => 0,
   };
-  $self->{'discovery'} = [ qw( useEnv usegrokdef useDefault ) ];
-  my ($k, $err, $i );
-  my @allowed = qw( Server Username Password Database discovery message_handler 
-    deadlock_retry_count );
+  $self->{discovery} = [ qw(useEnv usegrokdef useDefault) ];
+  my ($k, $err, $i);
+  my @allowed = qw(Server Username Password Database discovery message_handler
+    deadlock_retry_count);
 
   bless $self, $class;
 
 # is first argument in the allowed list?  if so, then all should be
 # if not, then the first 3 args are legacy (username, passwrod, server)
 
-  if ( scalar( @args ) > 0 ) {
-    if ( grep( /^$args[0]$/, @allowed ) ) {
+  if (scalar(@args) > 0) {
+    if (grep(/^$args[0]$/, @allowed)) {
       $i = 0;
     } else {
       $i = 3;
-      $self->{'Username'} = $args[0];
-      $self->{'Password'} = $args[1];
-      $self->{'Server'}   = $args[2];
-      $self->{'Database'} = "grok_db"    if $self->{'Username'} eq "groKKer";
-      $self->{'Database'} = "grokras_db" if $self->{'Username'} eq "ras";
+      $self->{Username} = $args[0];
+      $self->{Password} = $args[1];
+      $self->{Server}   = $args[2];
+      $self->{Database} = "grok_db"    if $self->{Username} eq "groKKer";
+      $self->{Database} = "grokras_db" if $self->{Username} eq "ras";
     }
 
     for ( ; $i <scalar(@args); $i++) {
       $k = $args[$i++];
-      if ( grep( /^$k$/, @allowed ) ) {
+      if (grep(/^$k$/, @allowed)) {
         $$self{ $k } = $args[$i];
       } else {
         $err .= "illegal option: $k => $args[$i]\n";
@@ -162,33 +162,33 @@ sub new($)
 
   die "$err    in ${class}::new()" if defined $err;
 
-  $self->{'default_message_handler'} = &dbmsghandle( 'silent_message_handler' );
-  $self->{'default_error_handler'}   = &dberrhandle( 'non_error_handler' );
+  $self->{default_message_handler} = &dbmsghandle('silent_message_handler');
+  $self->{default_error_handler}   = &dberrhandle('non_error_handler');
 
-  foreach my $disc_method ( @{$self->{'discovery'}} ) {
+  foreach my $disc_method (@{$self->{discovery}}) {
 #    print "trying $disc_method\n";
-    my ($user, $pass) = $self->loginByMethod( $disc_method );
-    if ( defined( $user ) && defined( $pass ) ) {
-      $self->{'handle'} = new Sybase::DBlib( $user, $pass, $self->{'Server'});
+    my ($user, $pass) = $self->loginByMethod($disc_method);
+    if (defined($user) && defined($pass)) {
+      $self->{handle} = Sybase::DBlib->new($user, $pass, $self->{Server});
     }
 
-    if ( defined( $self->{'handle'} ) ) {
+    if (defined($self->{handle})) {
 
-      $self->{'old_message_handler'} 
-        = &dbmsghandle( $self->{'message_handler'} ) 
-        if defined( $self->{'message_handler'} );
+      $self->{old_message_handler}
+        = &dbmsghandle($self->{message_handler})
+        if defined($self->{message_handler});
 
-      $self->{'old_error_handler'} 
-        = &dberrhandle( $self->{'default_error_handler'} )
-        if defined( $self->{'default_error_handler'} );
+      $self->{old_error_handler}
+        = &dberrhandle($self->{default_error_handler})
+        if defined($self->{default_error_handler});
 
       last;
     }
   }
 
-  if ( $err ) {
+  if ($err) {
     die "error in ${class}::new()";
-  } elsif( !defined( $self->{'handle'} )) {
+  } elsif(!defined($self->{handle})) {
     return undef;
   } else {
     return $self;
@@ -204,7 +204,7 @@ Return the Sybase::DBlib handle opened by the object.
 sub get_handle
 {
   my $self = shift;
-  return $self->{'handle'};
+  return $self->{handle};
 }
 
 # debugging
@@ -214,7 +214,7 @@ sub dump
   my $self = shift;
 
   $Data::Dumper::Indent = 1;
-  print Data::Dumper->Dump( [$self],["self"] );
+  print Data::Dumper->Dump([$self],["self"]);
 
 }
 
@@ -229,8 +229,8 @@ sub set_retry_count
   my $self = shift;
   my $count = shift;
 
-  if ( defined( $count ) ) {
-    $self->{'deadlock_retry_count'} = $count;
+  if (defined($count)) {
+    $self->{deadlock_retry_count} = $count;
   }
 }
 
@@ -243,7 +243,7 @@ Return the deadlock retry count
 sub get_retry_count
 {
   my $self = shift;
-  return $self->{'deadlock_retry_count'};
+  return $self->{deadlock_retry_count};
 }
 
 # error handler that is silent, needed to suppress messages when
@@ -282,7 +282,7 @@ sub std_message_handler
       $cmdbuff = &Sybase::DBlib::dbstrcpy($db);
 
       foreach $row (split(/\n/, $cmdbuff)) {
-        printf( "%5d> %s\n", $lineno++, $row );
+        printf("%5d> %s\n", $lineno++, $row);
       }
     }
     print "\n";
@@ -323,7 +323,7 @@ sub html_message_handler
       $cmdbuff = &Sybase::DBlib::dbstrcpy($db);
 
       foreach $row (split(/\n/, $cmdbuff)) {
-        printf( "%5d> %s\n", $lineno++, $row );
+        printf("%5d> %s\n", $lineno++, $row);
       }
     }
     print "</pre>\n";
@@ -367,16 +367,16 @@ sub sql
   my $proc = shift;
   my $hash_flag = shift;
 
-  my $dbh = $self->{'handle'};
+  my $dbh = $self->{handle};
   my ($i, @rows);
 
-  for ($i=0; $i < $self->{'deadlock_retry_count'}; $i++) {
+  for ($i=0; $i < $self->{deadlock_retry_count}; $i++) {
     $deadlock = 0;
-    @rows = $dbh->sql( $sql, $proc, $hash_flag );
+    @rows = $dbh->sql($sql, $proc, $hash_flag);
     last if $deadlock == 0;
   }
-  $self->{'deadlock_flag'} = $deadlock;
-  if ( $deadlock ) {
+  $self->{deadlock_flag} = $deadlock;
+  if ($deadlock) {
 #    print "deadlock retries exceeded<br>\n";
     return undef;
   } else {
@@ -396,12 +396,12 @@ sub run_sql
 {
   my ($dbh, @args) = @_;
 
-  return $dbh->sql( @args );
+  return $dbh->sql(@args);
 }
 
 =item deadlock_flag
 
-The state of the deadlock flag may be accessed as $dbh->{'deadlock_flag'}.
+The state of the deadlock flag may be accessed as $dbh->{deadlock_flag}.
 
 =cut
 

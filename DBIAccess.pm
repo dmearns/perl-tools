@@ -6,8 +6,8 @@ use DBI;
 
 use vars qw(@EXPORT @ISA $VERSION);
 require Exporter;
-@ISA = qw( Exporter );
-@EXPORT = qw( run_sql );
+@ISA = qw(Exporter);
+@EXPORT = qw(run_sql);
 
 $VERSION = '1.00';
 
@@ -93,14 +93,14 @@ sub do_prepared
   $hash_flag = 0 unless $hash_flag;
   $bind_values = [] if !defined $bind_values;
 
-  my $rc = $self->{statement}->execute( @{$bind_values} );
+  my $rc = $self->{statement}->execute(@{$bind_values});
   $self->{errstr} = $DBI::errstr;
   return $self->{conn_handle}->err unless $rc;
 
   my $aref = [];
   if ($self->{statement}->{NUM_OF_FIELDS}) {
-    $aref = $hash_flag 
-      ? $self->{statement}->fetchall_arrayref({}) 
+    $aref = $hash_flag
+      ? $self->{statement}->fetchall_arrayref({})
       : $self->{statement}->fetchall_arrayref();
     $self->{errstr} = $DBI::errstr;
   }
@@ -125,7 +125,7 @@ sub sql
   $self->{errstr} = $DBI::errstr;
   return $self->{conn_handle}->err unless $sth;
 
-  my $rc = $sth->execute( @{$bind_values} );
+  my $rc = $sth->execute(@{$bind_values});
   $self->{errstr} = $DBI::errstr;
   return $self->{conn_handle}->err unless $rc;
 
