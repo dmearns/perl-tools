@@ -405,6 +405,4 @@ The state of the deadlock flag may be accessed as $dbh->{'deadlock_flag'}.
 
 =cut
 
-=back
-
 1;
