@@ -6,7 +6,7 @@ use strict;
 use warnings;
 
 use base qw(Exporter);
-our @EXPORT_OK = qw( report_debug set_debug_level get_time get_time_str time_diff rotate_logfile check_logfile_rotation );
+our @EXPORT_OK = qw( report_debug debug set_debug_level get_time get_time_str time_diff rotate_logfile check_logfile_rotation );
 our $VERSION = '1.00';
 our $logfile;
 our $log_iterations = 10;
@@ -139,6 +139,7 @@ sub report_debug
   print "[$now]{$level}$package:$line $message\n";
   return 0;
 }
+*debug = &report_debug;
 
 sub set_debug_level
 {
