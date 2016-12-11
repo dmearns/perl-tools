@@ -7,7 +7,7 @@ use warnings;
 
 use base qw(Exporter);
 our @EXPORT_OK = qw(report_debug debug set_debug_level get_time get_time_str time_diff rotate_logfile check_logfile_rotation);
-our $VERSION = '1.00';
+our $VERSION = '1.01';
 our $logfile;
 our $log_iterations = 10;
 our $log_maxsize = 10_000_000;
