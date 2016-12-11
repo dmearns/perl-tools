@@ -9,7 +9,7 @@ use base qw(Exporter);
 our @EXPORT_OK = qw(report_debug debug set_debug_level get_time get_time_str time_diff
   rotate_logfile check_logfile_rotation set_logfile set_log_maxsize set_log_interations);
 
-our $VERSION = '1.01';
+our $VERSION = '1.02';
 our $logfile;
 our $log_iterations = 10;
 our $log_maxsize = 10_000_000;
