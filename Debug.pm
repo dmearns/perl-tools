@@ -139,7 +139,11 @@ sub report_debug
   print "[$now]{$level}$package:$line $message\n";
   return 0;
 }
-*debug = &report_debug;
+
+sub debug
+{
+  return report_debug(@_);
+}
 
 sub set_debug_level
 {
